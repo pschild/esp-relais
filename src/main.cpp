@@ -58,10 +58,10 @@ void ping() {
 void onFooBar(char* payload) {
   if (strcmp(payload, "on") == 0) {
     digitalWrite(LED_BUILTIN, LOW);
-    digitalWrite(4, LOW);
+    digitalWrite(4, HIGH);
   } else if (strcmp(payload, "off") == 0) {
     digitalWrite(LED_BUILTIN, HIGH);
-    digitalWrite(4, HIGH);
+    digitalWrite(4, LOW);
   }
 }
 
