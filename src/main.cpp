@@ -21,6 +21,7 @@ const String CHIP_ID = String("ESP_") + String(ESP.getChipId());
 
 void ping();
 void onFooBar(char* payload);
+void onPirTriggered(char* payload);
 void onOtaUpdate(char* payload);
 void onMqttConnected();
 
@@ -65,11 +66,18 @@ void onFooBar(char* payload) {
   }
 }
 
+void onPirTriggered(char* payload) {
+  digitalWrite(4, HIGH);
+  delay(2 * 1000);
+  digitalWrite(4, LOW);
+}
+
 void onOtaUpdate(char* payload) {
   updateHandler.startUpdate();
 }
 
 void onMqttConnected() {
+  mqttHandler.subscribe("/ESP_7888034/movement", onPirTriggered);
   mqttHandler.subscribe("/foo/bar", onFooBar);
   mqttHandler.subscribe("/otaUpdate/all", onOtaUpdate);
 }
