@@ -79,6 +79,7 @@ void onFooBar(char* payload) {
 }
 
 void onPirTriggered(char* payload) {
+  lightTurnOn();
   switchOffTimer.start();
 }
 
