@@ -20,6 +20,7 @@
 const String CHIP_ID = String("ESP_") + String(ESP.getChipId());
 
 void ping();
+void lightTurnOff();
 void onFooBar(char* payload);
 void onPirTriggered(char* payload);
 void onOtaUpdate(char* payload);
@@ -29,6 +30,7 @@ WifiHandler wifiHandler(WIFI_SSID, WIFI_PASSWORD);
 MqttHandler mqttHandler("192.168.178.28", CHIP_ID);
 OTAUpdateHandler updateHandler("192.168.178.28:9042", VERSION);
 Ticker pingTimer(ping, 60 * 1000);
+Ticker switchOffTimer(lightTurnOff, 10 * 1000);
 
 void setup() {
   Serial.begin(9600);
@@ -50,6 +52,15 @@ void loop() {
   mqttHandler.loop();
   updateHandler.loop();
   pingTimer.update();
+  switchOffTimer.update();
+}
+
+void lightTurnOn() {
+  digitalWrite(4, HIGH);
+}
+
+void lightTurnOff() {
+  digitalWrite(4, LOW);
 }
 
 void ping() {
@@ -57,19 +68,18 @@ void ping() {
 }
 
 void onFooBar(char* payload) {
+  switchOffTimer.stop();
   if (strcmp(payload, "on") == 0) {
     digitalWrite(LED_BUILTIN, LOW);
-    digitalWrite(4, HIGH);
+    lightTurnOn();
   } else if (strcmp(payload, "off") == 0) {
     digitalWrite(LED_BUILTIN, HIGH);
-    digitalWrite(4, LOW);
+    lightTurnOff();
   }
 }
 
 void onPirTriggered(char* payload) {
-  digitalWrite(4, HIGH);
-  delay(2 * 1000);
-  digitalWrite(4, LOW);
+  switchOffTimer.start();
 }
 
 void onOtaUpdate(char* payload) {
