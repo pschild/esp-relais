@@ -29,8 +29,11 @@ void onMqttConnected();
 WifiHandler wifiHandler(WIFI_SSID, WIFI_PASSWORD);
 MqttHandler mqttHandler("192.168.178.28", CHIP_ID);
 OTAUpdateHandler updateHandler("192.168.178.28:9042", VERSION);
+
 Ticker pingTimer(ping, 60 * 1000);
 Ticker switchOffTimer(lightTurnOff, 10 * 1000);
+
+boolean turnedOn = false;
 
 void setup() {
   Serial.begin(9600);
@@ -57,10 +60,12 @@ void loop() {
 }
 
 void lightTurnOn() {
+  turnedOn = true;
   digitalWrite(4, HIGH);
 }
 
 void lightTurnOff() {
+  turnedOn = false;
   digitalWrite(4, LOW);
 }
 
@@ -81,8 +86,10 @@ void onFooBar(char* payload) {
 }
 
 void onPirTriggered(char* payload) {
-  lightTurnOn();
-  switchOffTimer.resume();
+  if (!turnedOn) {
+    lightTurnOn();
+    switchOffTimer.start(); 
+  }
 }
 
 void onOtaUpdate(char* payload) {
