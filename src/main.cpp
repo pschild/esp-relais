@@ -31,7 +31,7 @@ MqttHandler mqttHandler("192.168.178.28", CHIP_ID);
 OTAUpdateHandler updateHandler("192.168.178.28:9042", VERSION);
 
 Ticker pingTimer(ping, 60 * 1000);
-Ticker switchOffTimer(lightTurnOff, 10 * 1000);
+Ticker switchOffTimer(lightTurnOff, 2 * 60 * 1000); // 2 minutes
 
 boolean turnedOn = false;
 
