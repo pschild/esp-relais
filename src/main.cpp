@@ -51,6 +51,7 @@ void setup() {
 void loop() {
   mqttHandler.loop();
   updateHandler.loop();
+  
   pingTimer.update();
   switchOffTimer.update();
 }
@@ -64,7 +65,8 @@ void lightTurnOff() {
 }
 
 void ping() {
-  mqttHandler.publish("/devices/nodemcu/version", VERSION);
+  const String channel = String("/devices/") + CHIP_ID + String("/version");
+  mqttHandler.publish(channel.c_str(), VERSION);
 }
 
 void onFooBar(char* payload) {
@@ -80,7 +82,7 @@ void onFooBar(char* payload) {
 
 void onPirTriggered(char* payload) {
   lightTurnOn();
-  switchOffTimer.start();
+  switchOffTimer.resume();
 }
 
 void onOtaUpdate(char* payload) {
