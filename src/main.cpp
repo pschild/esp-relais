@@ -24,6 +24,7 @@ void onFooBar(char* payload);
 void onPirTriggered(char* payload);
 void onOtaUpdate(char* payload);
 void onMqttConnected();
+void onMqttMessage(char* topic, char* message);
 
 WifiHandler wifiHandler(WIFI_SSID, WIFI_PASSWORD);
 MqttHandler mqttHandler("192.168.178.28", CHIP_ID);
@@ -38,8 +39,9 @@ void setup() {
   pinMode(4, OUTPUT); // GPIO 4 => ESP12F
 
   wifiHandler.connect();
-  mqttHandler.setOnConnectedCallback(onMqttConnected);
   mqttHandler.setup();
+  mqttHandler.setOnConnectedCallback(onMqttConnected);
+  mqttHandler.setOnMessageCallback(onMqttMessage);
   pingTimer.start();
 
   // start OTA update immediately
@@ -53,16 +55,15 @@ void loop() {
 }
 
 void ping() {
-  mqttHandler.publish("/devices/nodemcu/version", VERSION);
+  const String channel = String("devices/") + CHIP_ID + String("/version");
+  mqttHandler.publish(channel.c_str(), VERSION);
 }
 
 void onFooBar(char* payload) {
   if (strcmp(payload, "on") == 0) {
     digitalWrite(LED_BUILTIN, LOW);
-    digitalWrite(4, HIGH);
   } else if (strcmp(payload, "off") == 0) {
     digitalWrite(LED_BUILTIN, HIGH);
-    digitalWrite(4, LOW);
   }
 }
 
@@ -77,7 +78,17 @@ void onOtaUpdate(char* payload) {
 }
 
 void onMqttConnected() {
-  mqttHandler.subscribe("/ESP_7888034/movement", onPirTriggered);
-  mqttHandler.subscribe("/foo/bar", onFooBar);
-  mqttHandler.subscribe("/otaUpdate/all", onOtaUpdate);
+  mqttHandler.subscribe("ESP_7888034/movement");
+  mqttHandler.subscribe("foo/+/baz");
+  mqttHandler.subscribe("otaUpdate/all");
+}
+
+void onMqttMessage(char* topic, char* message) {
+  if (((std::string) topic).rfind("foo/", 0) == 0) {
+    onFooBar(message);
+  } else if (strcmp(topic, "otaUpdate/all") == 0) {
+    onOtaUpdate(message);
+  } else if (strcmp(topic, "ESP_7888034/movement") == 0) {
+    onPirTriggered(message);
+  }
 }
