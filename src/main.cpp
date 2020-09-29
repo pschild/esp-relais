@@ -32,7 +32,7 @@ MqttHandler mqttHandler("192.168.178.28", CHIP_ID);
 OTAUpdateHandler updateHandler("192.168.178.28:9042", VERSION);
 
 Ticker pingTimer(ping, 60 * 1000);
-Ticker switchOffTimer(lightTurnOff, 2 * 60 * 1000); // 2 minutes
+Ticker switchOffTimer(lightTurnOff, 3 * 60 * 1000); // 3 minutes
 
 boolean turnedOn = false;
 
@@ -97,7 +97,7 @@ void onOtaUpdate(char* payload) {
 }
 
 void onMqttConnected() {
-  mqttHandler.subscribe("ESP_7888034/movement");
+  mqttHandler.subscribe("relais/status");
   mqttHandler.subscribe("foo/+/baz");
   mqttHandler.subscribe("otaUpdate/all");
 }
@@ -107,7 +107,7 @@ void onMqttMessage(char* topic, char* message) {
     onFooBar(message);
   } else if (strcmp(topic, "otaUpdate/all") == 0) {
     onOtaUpdate(message);
-  } else if (strcmp(topic, "ESP_7888034/movement") == 0) {
+  } else if (strcmp(topic, "relais/status") == 0) {
     onPirTriggered(message);
   }
 }
